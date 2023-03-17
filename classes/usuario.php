@@ -1,4 +1,5 @@
 <?php 
+include_once('sql.php');
     class Usuario{
         // atributos
         private $id;
@@ -48,14 +49,14 @@
         public function getList()
         {
             $sql = new Sql;
-            return $sql->select("select * form usuarios order by nome");
+            return $sql->select("select * from usuarios order by nome");
         }
         public function search($_nome)
         {
             $sql = new SQl();
             return $sql->select("select * from usuarios where nome like :nome",array(':nome'=>"%".$_nome."%"));
         }
-        public function efetuarLogin($_usuario, $_senha):bool
+        public function efetuarLogin($_usuario, $_senha)
         {
             $sql = new Sql();
             $senhaCript = md5($_senha);
@@ -64,7 +65,7 @@
                 $this->setData($res[0]);
                 return true;
             }
-            return false;
+            
         }
         public function insert()
         {
@@ -78,8 +79,12 @@
             ":nivel"=>$this->getNivel(),
             ":ativo"=>$this->getAtivo()
         ));
+        $res = $sql->select("select @@identity as id");
+        if ($res>0) {
+            $this->setId($res[0]['id']);
         }
-        public function update():bool
+        }
+        public function update()
         {
             $sql = new Sql();
             $res = $sql->querySql("update usuarios set nome = :nome, senha = :senha, nivel = :nivel where id = :id",
@@ -89,11 +94,7 @@
             ":senha"=>$this->getSenha(),
             ":nivel"=>$this->getNivel()
         ));
-        if ($res) {
-            return true;
-        }else{
-            return false;
-        }
+        
         }
         public function delete($_id)
         {
